@@ -37,7 +37,7 @@ gcc -o client.exe client.c -lws2_32
 .\client.exe [Your IP Address] 8888
 ```
 
-##📦 console-chatapp-c
+## 📦 console-chatapp-c
 ├── Server.c              # Main driver code
 ├── Client.c              # User registration and login logic
 ├── message.c           # Message handling (send/receive)
@@ -46,7 +46,7 @@ gcc -o client.exe client.c -lws2_32
 ├── data/               # Folder to store user and chat files
 └── README.md           # This file
 
-##🤝 Contributing
+## 🤝 Contributing
 Fork the repository.
 
 Create your feature branch: git checkout -b feature-name
@@ -57,10 +57,10 @@ Push to the branch: git push origin feature-name
 
 Open a pull request.
 
-##📄 License
+## 📄 License
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 
-##📧 Contact
+## 📧 Contact
 
 Let me know if you'd like this personalized with your GitHub username, repo link, or if you'd like a badge section (like build status, license, etc.) added.
