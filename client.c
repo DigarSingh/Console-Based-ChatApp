@@ -6,6 +6,7 @@ char username[MAX_USERNAME];
 int logged_in = 0;
 HANDLE recv_thread;
 int running = 1;
+char server_ip[16] = "127.0.0.1"; // Default server IP
 
 // Function prototypes
 DWORD WINAPI receive_messages(LPVOID arg);
@@ -19,9 +20,17 @@ void logout_user();
 void cleanup();
 void enter_chat_mode();
 
-int main() {
+int main(int argc, char *argv[]) {
     struct sockaddr_in server_addr;
     WSADATA wsa_data;
+    
+    // Check if server IP is provided as a command line argument
+    if (argc > 1) {
+        strncpy(server_ip, argv[1], sizeof(server_ip) - 1);
+        server_ip[sizeof(server_ip) - 1] = '\0'; // Ensure null termination
+    }
+    
+    printf("Using server IP: %s\n", server_ip); 
     
     // Initialize Winsock
     if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
@@ -43,7 +52,7 @@ int main() {
     server_addr.sin_port = htons(SERVER_PORT);
     
     // Convert IP address from text to binary - using inet_addr instead of inet_pton for better compatibility
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_addr.sin_addr.s_addr = inet_addr(server_ip);
     if (server_addr.sin_addr.s_addr == INADDR_NONE) {
         printf("Invalid address or address not supported\n");
         closesocket(server_socket);
@@ -51,12 +60,12 @@ int main() {
         return 1;
     }
     
+    printf("Attempting to connect to server at %s:%d...\n", server_ip, SERVER_PORT);
+    
     // Connection attempt with retry logic
     int max_retries = 3;
     int retry_count = 0;
     int connected = 0;
-    
-    printf("Attempting to connect to server at 127.0.0.1:%d...\n", SERVER_PORT);
     
     while (retry_count < max_retries && !connected) {
         if (connect(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == SOCKET_ERROR) {
@@ -511,8 +520,8 @@ DWORD WINAPI receive_messages(LPVOID arg) {
             if (read_size > 0) {
                 // Process message based on type
                 switch (msg.type) {
-                    case MSG_CHAT:
-                        // Only decrypt messages from non-SERVER senders
+                    case MSG_CHAT: {
+                        // Fix: Added curly braces around this case code
                         char decrypted_content[MAX_MESSAGE];
                         strcpy(decrypted_content, msg.content);
                         
@@ -527,8 +536,10 @@ DWORD WINAPI receive_messages(LPVOID arg) {
                         }
                         printf("\n[%s] %s: %s\n", msg.timestamp, msg.sender, decrypted_content);
                         break;
+                    }
                     
-                    case MSG_PRIVATE:
+                    case MSG_PRIVATE: {
+                        // Fix: Added curly braces around this case code
                         char private_content[MAX_MESSAGE];
                         strcpy(private_content, msg.content);
                         decrypt_message(private_content);
@@ -540,6 +551,7 @@ DWORD WINAPI receive_messages(LPVOID arg) {
                         
                         printf("\n[PRIVATE] [%s] %s: %s\n", msg.timestamp, msg.sender, private_content);
                         break;
+                    }
                     
                     case MSG_HISTORY:
                         printf("\n%s\n", msg.content);

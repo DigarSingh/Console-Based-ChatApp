@@ -88,7 +88,16 @@ int main() {
         return 1;
     }
     
-    printf("Server started. Listening on port %d...\n", SERVER_PORT);
+    // Print the server's local and public IP for clients to connect
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
+    struct hostent *he = gethostbyname(hostname);
+    char *local_ip = inet_ntoa(*(struct in_addr*)(he->h_addr_list[0]));
+    
+    printf("Server started. Listening on:\n");
+    printf("- Local IP (for same network): %s:%d\n", local_ip, SERVER_PORT);
+    printf("- For connections from other networks, you need to set up port forwarding\n");
+    printf("  in your router for port %d\n", SERVER_PORT);
     
     // Accept and handle client connections
     while (1) {
@@ -561,4 +570,20 @@ void add_to_chat_log(Message *msg) {
     }
     
     fclose(file);
+}
+
+void cleanup_winsock() {
+    // Close all client sockets first
+    WaitForSingleObject(clients_mutex, INFINITE);
+    for (int i = 0; i < MAX_CLIENTS; i++) {
+        if (clients[i].socket != INVALID_SOCKET) {
+            closesocket(clients[i].socket);
+            clients[i].socket = INVALID_SOCKET;
+        }
+    }
+    ReleaseMutex(clients_mutex);
+    
+    // Clean up Winsock
+    WSACleanup();
+    printf("Winsock cleanup complete\n");
 }

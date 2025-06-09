@@ -36,7 +36,7 @@
 #define MSG_SUCCESS 7
 #define MSG_ERROR 8
 
-// Message structure:-
+// Message structure - defined in common.h only
 typedef struct {
     int type;
     char sender[MAX_USERNAME];
@@ -44,6 +44,13 @@ typedef struct {
     char timestamp[26];
     char content[MAX_MESSAGE];
 } Message;
+
+// Client structure - defined in common.h only
+typedef struct {
+    SOCKET socket;
+    char username[MAX_USERNAME];
+    int is_logged_in;
+} client_t;
 
 // Function to get current timestamp
 void get_timestamp(char *timestamp, size_t size) {
